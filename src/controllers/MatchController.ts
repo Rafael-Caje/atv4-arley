@@ -38,12 +38,16 @@ class MatchController{
     }
     public async listbyId(req: Request, res: Response): Promise<Response> {
         try {
-            const id = req.params.id;
-            console.log(id);
+            const id = parseInt(req.params.id);
+    
+            if (isNaN(id)) {
+                return res.status(400).json({ error: 'ID inválido' });
+            }
+    
             const team = await AppDataSource
                 .getRepository(Team)
                 .findOneBy({
-                    id: parseInt(id)
+                    id: id
                 });
     
             if (!team) {
@@ -63,6 +67,7 @@ class MatchController{
             return res.status(500).json({ error: 'Erro ao buscar time pelo ID' });
         }
     }
+    
     public async update (req: Request, res: Response): Promise<Response>{
         const {id, idhost, idvisitor, date} = req.body
 
