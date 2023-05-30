@@ -26,36 +26,34 @@ class TeamController {
     }
     public async create(req: Request, res: Response): Promise<Response> {
         const { name } = req.body;
-        console.log(name)
+        //console.log(name)
         const team = new Team()
         team.name = name
         const teams = await AppDataSource
-        .getRepository(Team).save(team).catch((e) => {
-            console.log("detail", e.errno)
-            if (e.errno) {
-                if (e.errno == 19) {
-                    return { error: 'Nome já existe' };
-                } else {
-                    return { error: 'Erro' };
+            .getRepository(Team).save(team).catch((e) => {
+                console.log("detail", e.errno)
+                if (e.detail && e.detail.includes('already exists')) {
+                        return { error: 'Nome já existe' };
+                    } else {
+                        return { error: 'Erro' };
+                    
                 }
-            }
-        })
+            })
         return res.json({ teams })
     }
     public async update(req: Request, res: Response): Promise<Response> {
         const { id, name } = req.body;
-        console.log(name)
+        //console.log(name)
         const team = await AppDataSource
-        .getRepository(Team).findOneBy({ id: id })
+            .getRepository(Team).findOneBy({ id: id })
         team.name = name
         const teams = await AppDataSource
-        .getRepository(Team).save(team).catch((e) => {
-            if (e.errno) {
-                if (e.errno == 19) {
-                    return { error: 'Npme já existe' };
+            .getRepository(Team).save(team).catch((e) => {
+                if (e.detail && e.detail.includes('already exists')) {
+                    return { error: 'Nome já existe' };
                 } else {
                     return { error: 'Erro' };
-                }
+                
             }
         })
         return res.json({ teams })

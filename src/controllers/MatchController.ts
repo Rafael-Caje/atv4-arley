@@ -36,23 +36,32 @@ class MatchController{
         })
         return res.json(Matches)
     }
-    public async listbyId(req: Request, res: Response): Promise<Response>{
-        const id = req.params.id
-        console.log(id)
-        const team = await AppDataSource
-        .getRepository(Team)
-        .findOneBy({
-            id:parseInt(id)
-        })
-
-        const Matches = await AppDataSource
-        .getRepository(Match)
-        .find({
-            where:[{host:team}, {visitor:team}],
-            relations:{host:true, visitor:true},
-            order:{date:"DESC"},  
-        })
-        return res.json(Matches)
+    public async listbyId(req: Request, res: Response): Promise<Response> {
+        try {
+            const id = req.params.id;
+            console.log(id);
+            const team = await AppDataSource
+                .getRepository(Team)
+                .findOneBy({
+                    id: parseInt(id)
+                });
+    
+            if (!team) {
+                return res.status(404).json({ error: 'Time não encontrado' });
+            }
+    
+            const Matches = await AppDataSource
+                .getRepository(Match)
+                .find({
+                    where: [{ host: team }, { visitor: team }],
+                    relations: { host: true, visitor: true },
+                    order: { date: "DESC" },
+                });
+    
+            return res.json(Matches);
+        } catch (error) {
+            return res.status(500).json({ error: 'Erro ao buscar time pelo ID' });
+        }
     }
     public async update (req: Request, res: Response): Promise<Response>{
         const {id, idhost, idvisitor, date} = req.body
